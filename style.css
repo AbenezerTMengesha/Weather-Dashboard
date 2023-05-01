@@ -1,0 +1,67 @@
+header {
+    padding-top: 3em;
+}
+
+p {
+    margin-bottom: 0px;
+}
+
+.uk-card {
+    margin: 10px;
+}
+
+.uk-card-body {
+    font-size: 14px;
+    background: linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 100%);
+}
+
+.uk-container {
+    padding-top: 2em;
+}
+
+/* Tablets and Smaller */
+@media screen and (max-width: 768px) {
+    body {
+        width: 90%;
+        margin: auto;
+    }
+
+    main {
+        flex-direction: column;
+    }
+
+    .uk-card-body {
+        font-size: 16px;
+    }
+
+    #forecast {
+        flex-direction: column;
+    }
+
+    .forecast-item {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .forecast-item-body {
+        text-align: left;
+    }
+}
+
+/* Mobile Phones and Smaller */
+@media screen and (max-width: 575px) {
+    #current-weather-data {
+        flex-direction: column;
+        padding-top: 0px;
+    }
+
+    .forecast-item {
+        justify-content: space-between;
+    }
+
+    p {
+        margin-bottom: 0px;
+        margin-top: 10px;
+    }
+}

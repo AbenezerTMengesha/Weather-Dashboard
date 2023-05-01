@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weather Forcast</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/css/uikit.min.css" />
+    <link href="./style.css" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="uk-text-center">
+            <h1 class="uk-heading-medium uk-text-light">Weather Dashboard</h1>
+        </div>
+    </header>
+
+    <main class="uk-flex uk-flex-center uk-margin-top">
+        <div id="weather-panel" style="display:none;">
+            <div class="uk-container weather-panel-item" id="current-weather-container" style="display:none;">
+                <h3 class="uk-heading-divider uk-text-light">Current Weather</h3>
+                <div class="uk-card-default uk-card uk-card-body uk-text-center" id="current-weather">
+                    <h3 class="uk-card-title uk-text-dark" id="current-weather-city"></h3>
+                    <p id="current-weather-date"></p>
+                    <img src="" alt="" id="current-weather-icon"></img>
+                    <div class="uk-container uk-flex uk-flex-around uk-text-left" id="current-weather-data">
+                        <div class="temp-data">
+                            <p id="current-weather-current-temp"></p>
+                            <p id="current-weather-min-temp"></p>
+                            <p id="current-weather-max-temp"></p>
+                        </div>
+                        <div class="other-data">
+                            <p id="current-weather-humidity"></p>
+                            <p id="current-weather-wind-speed"></p>
+                            <p id="current-weather-uv-index"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="uk-container weather-panel-item" id="weather-forecast-container" style="display:none;">
+                <h3 class="uk-heading-divider uk-text-light">5 Day Forecast</h3>
+                <div class="uk-flex uk-flex-center uk-text-center" id="forecast">
+                    <div class="uk-card-default uk-card uk-card-body forecast-item">
+                        <div class="forecast-header">
+                            <h4 class="uk-text-light" id="forecast-date-1"></h4>
+                            <img id="forecast-icon-1"></img>
+                        </div>
+                        <div class="forecast-item-body">
+                            <p id="forecast-min-temp-1"></p>
+                            <p id="forecast-max-temp-1"></p>
+                            <p id="forecast-humidity-1"></p>
+                        </div>
+                    </div>
+                    <div class="uk-card-default uk-card uk-card-body forecast-item">
+                        <div class="forecast-item-header">
+                            <h4 class="uk-text-light" id="forecast-date-2"></h4>
+                            <img id="forecast-icon-2"></img>
+                        </div>
+                        <div class="forecast-item-body">
+                            <p id="forecast-min-temp-2"></p>
+                            <p id="forecast-max-temp-2"></p>
+                            <p id="forecast-humidity-2"></p>
+                        </div>
+                    </div>
+                    <div class="uk-card-default uk-card uk-card-body forecast-item">
+                        <div class="forecast-item-header">
+                            <h4 class="uk-text-light" id="forecast-date-3"></h4>
+                            <img id="forecast-icon-3"></img>
+                        </div>
+                        <div class="forecast-item-body">
+                            <p id="forecast-min-temp-3"></p>
+                            <p id="forecast-max-temp-3"></p>
+                            <p id="forecast-humidity-3"></p>
+                        </div>
+                    </div>
+                    <div class="uk-card-default uk-card uk-card-body forecast-item">
+                        <div class="forecast-item-header">
+                            <h4 class="uk-text-light" id="forecast-date-4"></h4>
+                            <img id="forecast-icon-4"></img>
+                        </div>
+                        <div class="forecast-item-body">
+                            <p id="forecast-min-temp-4"></p>
+                            <p id="forecast-max-temp-4"></p>
+                            <p id="forecast-humidity-4"></p>
+                        </div>
+                    </div>
+                    <div class="uk-card-default uk-card uk-card-body forecast-item">
+                        <div class="forecast-item-header">
+                            <h4 class="uk-text-light" id="forecast-date-5"></h4>
+                            <img id="forecast-icon-5"></img>
+                        </div>
+                        <div class="forecast-item-body">
+                            <p id="forecast-min-temp-5"></p>
+                            <p id="forecast-max-temp-5"></p>
+                            <p id="forecast-humidity-5"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="search-panel">
+            <div class="uk-container" id="search-form-container">
+                <h3 class="uk-heading-divider uk-text-light">Search</h3>
+                <div class="uk-card-default uk-card uk-card-body">
+                    <form class="uk-search uk-search-default uk-width-1-1">
+                        <button class="uk-search-icon-flip" uk-search-icon id="search-button"></button>
+                        <input class="uk-search-input" type="search" placeholder="Search for a location"
+                            id="search-input">
+                    </form>
+                </div>
+            </div>
+            <div class="uk-container" id="search-history-container">
+                <h3 class="uk-heading-divider uk-text-light" style="display:none" id="search-history-title">Search
+                    History</h3>
+                <div class="uk-flex-column uk-flex" id="search-history-items"></div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="confirm-location-modal" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h2 class="uk-modal-title uk-text-center">Confirm Location</h2>
+                <form id="confirm-location-form">
+                    <p id="confirm-location-form-message">
+                        Your search term matched multiple locations. Please select your desired location from the list
+                        below.
+                    </p>
+                    <div id="confirm-location-form-body" class="uk-margin uk-margin-left uk-margin-right uk-margin-top"
+                        uk-overflow-auto></div>
+                    <div class="uk-flex-center uk-flex" id="confirm-location-form-buttons">
+                        <button class="uk-button uk-button-default uk-modal-close" type="button"
+                            id="confirm-location-cancel">Cancel</button>
+                        <button class="uk-button uk-button-primary uk-margin-left" type="submit"
+                            id="confirm-location-save">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/js/uikit-icons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+    <script src="./script.js"></script>
+</body>
+
+</html>
