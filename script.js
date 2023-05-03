@@ -1,4 +1,3 @@
-// load the dom elements
 var searchInput = document.querySelector("#search-input");
 var searchButton = document.querySelector("#search-button");
 var confirmLocationModal = document.querySelector("#confirm-location-modal");
@@ -7,20 +6,17 @@ var currentWeatherCity = document.querySelector("#current-weather-city");
 var currentWeatherData = document.querySelector("#current-weather");
 var forecastElement = document.querySelector("#forecast");
 
-// define other variables
 var displayName;
 var searchTerms = [];
 var searchHistory = [];
 
+// Displays the location by city, state and coountry
 var defineDisplayName = function(location) {
-    /* display the location as city, state, country */
 
-    // define the location components
     var city = location.adminArea5;
     var state = location.adminArea3;
     var country = location.adminArea1;
 
-    // construct an array of the location components
     var tempDisplayName = [];
     if (city) {
         tempDisplayName.push(city);
@@ -32,14 +28,12 @@ var defineDisplayName = function(location) {
         tempDisplayName.push(country);
     }
 
-    // return the joined array so that we don't need to deal with extra commas
     return tempDisplayName.join(", ");
 }
 
+// Gives multiple locations if what the user is looking for has multiple results
 var confirmLocation = function(locationsArray) {
-    /* handle situtations where there are multiple results by surfacing a modal and prompting the user to choose a location */
 
-    // get the form body element and clear its contents
     var formBody = confirmLocationModal.querySelector("#confirm-location-form-body");
     formBody.innerHTML = "";
 
@@ -73,13 +67,11 @@ var confirmLocation = function(locationsArray) {
     UIkit.modal("#confirm-location-modal").show();
 }
 
+// Save to localStorage
 var saveLocation = function(location) {
-    /* add the display names and coordinates for each search to localStorage */
 
-    // set the displayName value
     displayName = defineDisplayName(location);
 
-    // if the term is already in the search history, remove it from the arrays and DOM
     if (searchTerms.includes(displayName)) {
 
         // remove the display name from the search arrays
@@ -102,11 +94,11 @@ var saveLocation = function(location) {
     // update the search history arrays
     if (searchTerms.length == 5) {
 
-        // remove the last element if the array has 5 items
+        // remove the last element from the array
         searchTerms.splice(0, 1);
         searchHistory.splice(0, 1);
 
-        // also remove it from the DOM
+        // remove it from the DOM
         var fifthChild = searchHistoryItems.childNodes[4];
         searchHistoryItems.removeChild(fifthChild);
     }
@@ -120,12 +112,11 @@ var saveLocation = function(location) {
     }
     localStorage.setItem("searchHistory", JSON.stringify(localStorageHistory));
 
-    // update the search history
     createSearchHistoryElement(cityData);
 }
 
+// Using API to get a location
 var getCoordinates = function(searchTerm) {
-    /* use the mapquest API to geocode the location based on the search terms */
 
     searchTerm = searchTerm.split(" ").join("+");
     var geocodingApiUrl = "https://www.mapquestapi.com/geocoding/v1/address?key=ZJUiXdZZzhsEe05eUGvmmAsIoTPvQOHn&location=" + searchTerm;
@@ -139,34 +130,33 @@ var getCoordinates = function(searchTerm) {
                     saveLocation(locations[0]);
                     getWeather(locations[0].latLng);
                 } else {
-                    confirmLocation(locations);  // prompt the user to confirm the location
+                    confirmLocation(locations);
                 }
             })
         } else {
-            console.log("Couldn't get the coordinates from the mapquest API: ", res.text);
+            console.log("Location not found: ", res.text);
         }
     });
 }
 
+// Using API to get the weather
 var getWeather = function(coords) {
-    /* make the api call to get the weather based on a set of coordinates {lat: x, lng: y} */
 
     var weatherApiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + coords.lat + "&lon=" + coords.lng + "&units=metric&exclude=minutely,hourly&appid=3efc587005200cdf1f242650ff091998";
     fetch(weatherApiUrl).then(function(res){
         if (res.ok) {
             res.json().then(function(data){
-                displayWeather(data);  // display the current weather and forecast
+                displayWeather(data); 
             })
         } else {
-            console.log("Couldn't get the weather data from the openweathermap API: ", res.text);
+            console.log("Weather not found: ", res.text);
         }
     })
 }
 
+// Search history
 var createSearchHistoryElement = function(searchHistoryData) {
-    /* helper function to create search history card */
     
-    // display the header
     var searchHistoryHeader = document.querySelector("#search-history-title");
     searchHistoryHeader.style.display = "block";
 
@@ -178,8 +168,8 @@ var createSearchHistoryElement = function(searchHistoryData) {
     searchHistoryItems.insertBefore(newCard, searchHistoryItems.firstChild);
 }
 
+// Display the search history
 var displaySearchHistory = function() {
-    /* display search history cards if there's a search history in localStorage */
 
     var loadedSearchHistory = JSON.parse(localStorage.getItem("searchHistory"));
     if(loadedSearchHistory) {
@@ -187,64 +177,64 @@ var displaySearchHistory = function() {
         searchHistory = loadedSearchHistory.searchHistory;
         for (var i=0; i < searchTerms.length; i++) {
             if (!searchTerms.includes(searchHistory[i])) {
-                createSearchHistoryElement(searchHistory[i]);  // add a search term to the search history panel
+                createSearchHistoryElement(searchHistory[i]);
             }
         }
     }
 }
 
 var displayIcon = function(iconElement, iconCode, iconAlt) {
-    /* given an icon code and img element, display an icon */
 
     var iconSrc = "https://openweathermap.org/img/w/" + iconCode + ".png";
     iconElement.setAttribute("src", iconSrc);
     iconElement.setAttribute("alt", iconAlt);
+
 }
 
+// Display current weather
 var displayWeather = function(weatherData) {
-    /* use the weatherData object to display the current weather */
 
-    // display the city name
+    // city 
     currentWeatherCity.textContent = displayName;
 
-    // display today's date
+    // date
     var dateElement = currentWeatherData.querySelector("#current-weather-date");
     var unixDate = weatherData.current.dt;
     var formattedDate =  moment.unix(unixDate).format("dddd, MMMM Do");
     dateElement.textContent = formattedDate;
 
-    // display the weather description
+    // weather 
     var iconElement = currentWeatherData.querySelector("#current-weather-icon");
     var iconCode = weatherData.current.weather[0].icon;
     var iconAlt = weatherData.current.weather[0].description + " icon";
     displayIcon(iconElement, iconCode, iconAlt);
 
-    // display the humidity
+    // humidity
     var humidityElement = currentWeatherData.querySelector("#current-weather-humidity");
     var humidity = weatherData.current.humidity;  // percentage
     humidityElement.textContent = "Humidity: " + humidity + "%";
 
-    // display the current temperature
+    // current temp
     var temperatureElement = currentWeatherData.querySelector("#current-weather-current-temp");
     var temperature = Math.floor(weatherData.current.temp);  // fahrenheit if imperial, celsius if metric
     temperatureElement.textContent = "Current Temperature: " + temperature + "°C";
 
-    // display the minimum temperature
+    // minimum temp
     var minTempElement = currentWeatherData.querySelector("#current-weather-min-temp");
     var minTemp = Math.floor(weatherData.daily[0].temp.min);  // fahrenheit if imperial, celsius if metric
     minTempElement.textContent = "Low: " + minTemp + "°C";
 
-    // display the maximum temperature
+    // maximum temp
     var maxTempElement = currentWeatherData.querySelector("#current-weather-max-temp");
     var maxTemp = Math.floor(weatherData.daily[0].temp.max);  // fahrenheit if imperial, celsius if metric
     maxTempElement.textContent = "High: " + maxTemp + "°C";
 
-    // display the wind speed
+    // wind speed
     var windSpeedElement = currentWeatherData.querySelector("#current-weather-wind-speed");
     var windSpeed = weatherData.current.wind_speed;  // mph if imperial, m/s if metric
     windSpeedElement.textContent = "Wind Speed: " + windSpeed + " miles per hour";
 
-    // display the uv index
+    // uv index
     var uvIndexElement = currentWeatherData.querySelector("#current-weather-uv-index");
     uvIndexElement.innerHTML = "";
     uvIndexElement.textContent = "UV Index: ";
@@ -263,50 +253,49 @@ var displayWeather = function(weatherData) {
     }
     uvIndexElement.appendChild(uvIndexSpan);
 
-    // display the weatherPanel and currentWeatherContainer now that we have weather data
+    // weatherPanel and currentWeatherContainer 
     var weatherPanel = document.querySelector("#weather-panel");
     var currentWeatherContainer = document.querySelector("#current-weather-container");
     weatherPanel.style.display = "block";
     currentWeatherContainer.style.display = "block";
     
-    // display the forecast
+    // forecast
     displayForecast(weatherData.daily)
 }
 
+// 5-day forcast
 var displayForecast = function(forecastData) {
-    /* display the 5 day forecast */
 
-    // iterate through the first 5 days in the forecast data
     for (var i=1; i < 6; i++) {
 
-        // display the date
+        // date
         var dateElement = forecastElement.querySelector("#forecast-date-" + i);
         var unixDate = forecastData[i].dt;
         dateElement.textContent = moment.unix(unixDate).format("MMMM Do");
 
-        // display the icon representation
+        // icon 
         var iconElement = forecastElement.querySelector("#forecast-icon-" + i);
         var iconCode = forecastData[i].weather[0].icon;
         var iconAlt = forecastData[i].weather[0].description;
         displayIcon(iconElement, iconCode, iconAlt);
 
-        // display humidity
+        // humidity
         var humidityElement = forecastElement.querySelector("#forecast-humidity-" + i);
-        var humidity = forecastData[i].humidity;  // percentage
+        var humidity = forecastData[i].humidity; 
         humidityElement.textContent = "Humidity: " + humidity + "%";
 
-        // display min temperature
+        // min temp
         var minTempElement = forecastElement.querySelector("#forecast-min-temp-" + i);
-        var minTemp = Math.floor(forecastData[i].temp.min);  // fahrenheit if imperial, celsius if metric
+        var minTemp = Math.floor(forecastData[i].temp.min);  
         minTempElement.textContent = "Low: " + minTemp + "°C";
 
-        // display max temperature
+        // max temp
         var maxTempElement = forecastElement.querySelector("#forecast-max-temp-" + i);
-        var maxTemp = Math.floor(forecastData[i].temp.max);  // fahrenheit if imperial, celsius if metric
+        var maxTemp = Math.floor(forecastData[i].temp.max);  
         maxTempElement.textContent = "High: " + maxTemp + "°C";
     }
 
-    // display the forecast container
+    // forecast 
     var forecastContainer = document.querySelector("#weather-forecast-container");
     forecastContainer.style.display = "block";
 }
@@ -332,7 +321,6 @@ var searchHistoryHandler = function(event) {
 var confirmLocationHandler = function(event){
     event.preventDefault();
 
-    // figure out whether the user has chosen a location
     var confirmedLocation;
     var radioButtons = document.getElementsByName("search-result");
     for (var i=0; i < radioButtons.length; i++) {
@@ -341,19 +329,17 @@ var confirmLocationHandler = function(event){
         }
     }
 
-    // if they chose a location, display the weather
     if (confirmedLocation) {
         UIkit.modal("#confirm-location-modal").hide();
         saveLocation(confirmedLocation);
         getWeather(confirmedLocation.latLng)
         confirmLocationModal.querySelector("#confirm-location-form-message").classList.remove("uk-text-primary");
     }
-    else {  // otherwise, let the user know they're missing a response.
+    else {  
         confirmLocationModal.querySelector("#confirm-location-form-message").classList.add("uk-text-primary");
     }
 }
 
-// event handlers and on load
 displaySearchHistory();
 searchButton.addEventListener("click", searchButtonHandler)
 searchHistoryItems.addEventListener("click", searchHistoryHandler);
